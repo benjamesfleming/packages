@@ -27,7 +27,7 @@ const AddAsset = (opts) => {
         const index = path.basename(file.oldPath, path.extname(file.oldPath));
         const value = path.basename(file.path);
 
-        _.set(PATH_MAP, `${group}[]`, {[index]: value})
+        _.set(PATH_MAP, `${group}.${index}`, value)
         cb(null, file);
     });
 };
