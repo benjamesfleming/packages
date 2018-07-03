@@ -4,5 +4,13 @@
   "description": "Grouped Assets Hash For Gulp.",
   "main": "index.js",
   "author": "Ben Fleming",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.10",
+    "modify-filename": "^1.1.0",
+    "parent-folder": "^1.1.0",
+    "rev-hash": "^2.0.0",
+    "rev-path": "^2.0.0",
+    "through2": "^2.0.3"
+  }
 }
