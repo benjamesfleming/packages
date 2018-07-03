@@ -34,13 +34,13 @@ const AddAsset = (opts) => {
 
 const InjectAssets = (opts) => {
     return through.obj((file, enc, cb) => {
-        let { fileAttr='data', group='[FileName]' } = opts || {}
+        let { fileAttr='data', group='[FileName]', extras={} } = opts || {}
 
         group = group
             .replace('[FileName]', path.basename(file.path, path.extname(file.path)))
             .replace('[FileExt]', path.extname(file.path))
 
-        file[fileAttr] = Object.assign(PATH_MAP['all'], _.get(PATH_MAP, group));
+        file[fileAttr] = Object.assign(PATH_MAP['all'], _.get(PATH_MAP, group), extras);
         cb(null, file);
     })
 };
