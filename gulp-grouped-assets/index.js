@@ -1,39 +1,28 @@
 const fs = require('fs');
 const path = require('path');
 const through = require('through2');
+const _ = require('lodash');
 
 const revHash = require('rev-hash');
 const revPath = require('rev-path');
 const filename = require('modify-filename');
 const parent = require('parent-folder');
 
-let PATH_MAP = {};
-// const formatPathMap = () => 
-//     _(PATH_MAP)
-//         .groupBy('page')
-//         .mapValues(pages => 
-//             _(pages)
-//                 .groupBy('group')
-//                 .mapValues(group => _.map(group, 'value'))
-//                 .mapValues(group => _.assign(...group))
-//                 .value()
-//         )
-//         .value();
+const PATH_MAP = {};
 
 const AddAsset = (opts) => {
-    let { group='all' } = opts || {}
-    
     return through.obj((file, enc, cb) => {
+        let { group='all' } = opts || {}
+
         file.hash = revHash(file.contents);
         file.oldPath = file.path;
         file.path = filename(file.path, (fn, ext) => 
             revPath(fn, file.hash) + ext
         );
 
-        ([
-            ['[ParentDIR]', parent(file.oldPath, true)],
-            ['[FileExt]', path.extname(file.oldPath)]
-        ]).forEach(([key, value]) => group = group.replace(key, value));
+        group = group
+            .replace('[ParentDIR]', parent(file.oldPath, true))
+            .replace('[FileExt]', path.extname(file.oldPath))
 
         const index = path.basename(file.oldPath, path.extname(file.oldPath));
         const value = path.basename(file.path);
@@ -44,15 +33,14 @@ const AddAsset = (opts) => {
 };
 
 const InjectAssets = (opts) => {
-    let { fileAttr='data', group='[FileName]' } = opts || {}
-
     return through.obj((file, enc, cb) => {
-        ([
-            ['[FileName]', path.basename(file.path, path.extname(file.path))],
-            ['[FileExt]', path.extname(file.path)]
-        ]).forEach(([key, value]) => group = group.replace(key, value));
+        let { fileAttr='data', group='[FileName]' } = opts || {}
 
-        file[fileAttr] = Object.assign(PathMap['all'], _.get(PATH_MAP, group));
+        group = group
+            .replace('[FileName]', path.basename(file.path, path.extname(file.path)))
+            .replace('[FileExt]', path.extname(file.path))
+
+        file[fileAttr] = Object.assign(PATH_MAP['all'], _.get(PATH_MAP, group));
         cb(null, file);
     })
 };
